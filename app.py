@@ -28,11 +28,11 @@ class Todos(rest.Resource):
             with po.db_session:
 
                 return {
-                    i.id: [
-                        i.data,
-                        [tag.get_url() for tag in i.tags]
+                    item.id: [
+                        item.data,
+                        [tag.get_url() for tag in item.tags]
                     ]
-                    for i in Todo.select()
+                    for item in Todo.select()
                 }
         except Exception:
             return {}, 404
