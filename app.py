@@ -44,15 +44,12 @@ class Todos(rest.Resource):
 
         with po.db_session:
             item = Todo(data=info['data'])
-            created_tags = {
-                t.name: t
-                for t in po.select(tag for tag in Tag)}
-
-            for tag in info['tags']:
-                if tag in created_tags:
-                    item.tags += [created_tags[tag]]
-                else:
-                    item.tags += Tag(name=tag)
+            
+            for tag_name in info['tags']:
+                tag = Tag.get(name=tag_name)
+                if tag is None:
+                    tag = Tag(name=tag_name)
+                item.tags += tag
 
         return {}, 200
 
