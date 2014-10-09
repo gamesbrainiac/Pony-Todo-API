@@ -25,7 +25,7 @@ class Todos(rest.Resource):
         """Will give you all the todo items"""
 
         try:
-            with po.db_session:
+            with orm.db_session:
 
                 return {
                     item.id: [
@@ -42,7 +42,7 @@ class Todos(rest.Resource):
 
         info = json.loads(request.data)
 
-        with po.db_session:
+        with orm.db_session:
             item = Todo(data=info['data'])
             
             for tag_name in info['tags']:
@@ -64,7 +64,7 @@ class TodoItem(rest.Resource):
         :type todo_id: int
         """
 
-        with po.db_session:
+        with orm.db_session:
             todo = Todo[todo_id]
             tags = list(todo.tags.name)
 
@@ -79,7 +79,7 @@ class Tags(rest.Resource):
     def get(self):
         """Will show you all tags"""
 
-        with po.db_session:
+        with orm.db_session:
             return {
                 tag.name: tag.get_url()
                 for tag in Tag.select()
@@ -96,7 +96,7 @@ class TagItem(rest.Resource):
         :type tag_id: int
         """
 
-        with po.db_session:
+        with orm.db_session:
             tag = Tag[tag_id]
             todos = list(tag.todos.data)
 
@@ -113,5 +113,5 @@ api.add_resource(TagItem, '/tags/<int:tag_id>', endpoint='TagItem')
 
 
 if __name__ == '__main__':
-    po.sql_debug(True)
+    orm.sql_debug(True)
     app.run(debug=True)
