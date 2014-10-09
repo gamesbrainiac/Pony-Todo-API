@@ -30,7 +30,7 @@ class Todos(rest.Resource):
                 return {
                     i.id: [
                         i.data,
-                        [t.get_url() for t in i.tags]
+                        [tag.get_url() for tag in i.tags]
                     ]
                     for i in po.select(item for item in Todo)
                 }
@@ -81,8 +81,8 @@ class Tags(rest.Resource):
 
         with po.db_session:
             return {
-                t.name: t.get_url()
-                for t in Tag.select()
+                tag.name: tag.get_url()
+                for tag in Tag.select()
             }
 
 
