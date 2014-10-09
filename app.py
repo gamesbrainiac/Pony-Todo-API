@@ -66,13 +66,7 @@ class TodoItem(rest.Resource):
 
         with po.db_session:
             todo = Todo[todo_id]
-
-            todo_tag_ids = [tag.id for tag in todo.tags]
-
-            tags = [
-                tag.name for tag in
-                po.select(t for t in Tag if t.id in todo_tag_ids)
-            ]
+            tags = list(todo.tags.name)
 
             return {
                 "Task": todo.data,
@@ -104,13 +98,7 @@ class TagItem(rest.Resource):
 
         with po.db_session:
             tag = Tag[tag_id]
-
-            tag_todo_ids = [todo.id for todo in tag.todos]
-
-            todos = [
-                todo.data for todo in
-                po.select(t for t in Todo if t.id in tag_todo_ids)
-            ]
+            todos = list(tag.todos.data)
 
             return {
                 "Tag": tag.name,
