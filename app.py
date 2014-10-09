@@ -82,7 +82,7 @@ class Tags(rest.Resource):
         with po.db_session:
             return {
                 t.name: "http://localhost:5000/tags/{}".format(t.id)
-                for t in po.select(_ for _ in Tag)
+                for t in Tag.select()
             }
 
 
