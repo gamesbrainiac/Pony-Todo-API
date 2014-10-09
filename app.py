@@ -64,14 +64,18 @@ class TodoItem(rest.Resource):
         :type todo_id: int
         """
 
-        with orm.db_session:
-            todo = Todo[todo_id]
-            tags = list(todo.tags.name)
+        try:
+            with orm.db_session:
+                todo = Todo[todo_id]
+                tags = list(todo.tags.name)
 
-            return {
-                "Task": todo.data,
-                "Tags": tags
-            }
+                return {
+                    "Task": todo.data,
+                    "Tags": tags
+                }
+
+        except orm.ObjectNotFound:
+            return {}, 404
 
 
 class Tags(rest.Resource):
@@ -96,14 +100,18 @@ class TagItem(rest.Resource):
         :type tag_id: int
         """
 
-        with orm.db_session:
-            tag = Tag[tag_id]
-            todos = list(tag.todos.data)
+        try:
+            with orm.db_session:
+                tag = Tag[tag_id]
+                todos = list(tag.todos.data)
 
-            return {
-                "Tag": tag.name,
-                "Todos": todos
-            }
+                return {
+                    "Tag": tag.name,
+                    "Todos": todos
+                }
+
+        except orm.ObjectNotFound:
+            return {}, 404
 
 # Paths ##########################################################################
 api.add_resource(Todos, '/', endpoint='Home')
