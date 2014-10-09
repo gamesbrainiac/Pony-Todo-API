@@ -27,7 +27,7 @@ class Todos(rest.Resource):
         with orm.db_session:
             return {
                 item.id: {
-                    'data' : item.data,
+                    'task' : item.data,
                     'tags' : [tag.get_url() for tag in item.tags]
                 }
                 for item in Todo.select()
@@ -66,8 +66,8 @@ class TodoItem(rest.Resource):
                 tags = list(todo.tags.name)
 
                 return {
-                    "Task": todo.data,
-                    "Tags": tags
+                    "task": todo.data,
+                    "tags": tags
                 }
 
         except orm.ObjectNotFound:
@@ -102,8 +102,8 @@ class TagItem(rest.Resource):
                 todos = list(tag.todos.data)
 
                 return {
-                    "Tag": tag.name,
-                    "Todos": todos
+                    "tag": tag.name,
+                    "tasks": todos
                 }
 
         except orm.ObjectNotFound:
