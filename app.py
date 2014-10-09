@@ -30,7 +30,7 @@ class Todos(rest.Resource):
                 return {
                     i.id: [
                         i.data,
-                        ["http://localhost:5000/tags/{}".format(t.id) for t in i.tags]
+                        [t.get_url() for t in i.tags]
                     ]
                     for i in po.select(item for item in Todo)
                 }
@@ -81,7 +81,7 @@ class Tags(rest.Resource):
 
         with po.db_session:
             return {
-                t.name: "http://localhost:5000/tags/{}".format(t.id)
+                t.name: t.get_url()
                 for t in Tag.select()
             }
 

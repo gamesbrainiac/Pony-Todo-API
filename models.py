@@ -21,3 +21,6 @@ class Tag(db.Entity):
 
     name = po.Required(unicode)
     todos = po.Set("Todo")
+
+    def get_url(self):
+        return "http://localhost:5000/tags/{}".format(self.id)
