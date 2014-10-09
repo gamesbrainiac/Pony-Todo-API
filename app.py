@@ -32,7 +32,7 @@ class Todos(rest.Resource):
                         i.data,
                         [tag.get_url() for tag in i.tags]
                     ]
-                    for i in po.select(item for item in Todo)
+                    for i in Todo.select()
                 }
         except Exception:
             return {}, 404
