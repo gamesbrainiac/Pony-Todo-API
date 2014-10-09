@@ -26,10 +26,10 @@ class Todos(rest.Resource):
 
         with orm.db_session:
             return {
-                item.id: [
-                    item.data,
-                    [tag.get_url() for tag in item.tags]
-                ]
+                item.id: {
+                    'data' : item.data,
+                    'tags' : [tag.get_url() for tag in item.tags]
+                }
                 for item in Todo.select()
             }
 
