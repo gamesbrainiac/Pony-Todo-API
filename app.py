@@ -24,18 +24,14 @@ class Todos(rest.Resource):
     def get(self):
         """Will give you all the todo items"""
 
-        try:
-            with orm.db_session:
-
-                return {
-                    item.id: [
-                        item.data,
-                        [tag.get_url() for tag in item.tags]
-                    ]
-                    for item in Todo.select()
-                }
-        except Exception:
-            return {}, 404
+        with orm.db_session:
+            return {
+                item.id: [
+                    item.data,
+                    [tag.get_url() for tag in item.tags]
+                ]
+                for item in Todo.select()
+            }
 
     def put(self):
         """Payload contains information to create new todo item"""
