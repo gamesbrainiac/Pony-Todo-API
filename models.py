@@ -19,7 +19,7 @@ class Tag(db.Entity):
 
     _table_ = 'Tags'
 
-    name = orm.Required(unicode)
+    name = orm.Required(unicode, unique=True)
     todos = orm.Set("Todo")
 
     def get_url(self):
