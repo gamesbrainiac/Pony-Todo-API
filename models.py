@@ -2,22 +2,25 @@
 # models.py
 __author__ = "Quazi Nafiul Islam"
 
-import pony.orm as po
+from pony import orm
 
-db = po.Database()
+db = orm.Database()
 
 
 class Todo(db.Entity):
 
     _table_ = 'Todos'
 
-    data = po.Required(unicode)
-    tags = po.Set("Tag")
+    data = orm.Required(unicode)
+    tags = orm.Set("Tag")
 
 
 class Tag(db.Entity):
 
     _table_ = 'Tags'
 
-    name = po.Required(unicode)
-    todos = po.Set("Todo")
+    name = orm.Required(unicode, unique=True)
+    todos = orm.Set("Todo")
+
+    def get_url(self):
+        return "http://localhost:5000/tags/{}".format(self.id)

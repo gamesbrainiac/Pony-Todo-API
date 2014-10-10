@@ -24,35 +24,28 @@ class Todos(rest.Resource):
     def get(self):
         """Will give you all the todo items"""
 
-        try:
-            with po.db_session:
-
-                return {
-                    i.id: [
-                        i.data,
-                        ["http://localhost:5000/tags/{}".format(t.id) for t in i.tags]
-                    ]
-                    for i in po.select(item for item in Todo)
+        with orm.db_session:
+            return {
+                item.id: {
+                    'task' : item.data,
+                    'tags' : [tag.get_url() for tag in item.tags]
                 }
-        except Exception:
-            return {}, 404
+                for item in Todo.select()
+            }
 
     def put(self):
         """Payload contains information to create new todo item"""
 
         info = json.loads(request.data)
 
-        with po.db_session:
+        with orm.db_session:
             item = Todo(data=info['data'])
-            created_tags = {
-                t.name: t
-                for t in po.select(tag for tag in Tag)}
-
-            for tag in info['tags']:
-                if tag in created_tags:
-                    item.tags += [created_tags[tag]]
-                else:
-                    item.tags += Tag(name=tag)
+            
+            for tag_name in info['tags']:
+                tag = Tag.get(name=tag_name)
+                if tag is None:
+                    tag = Tag(name=tag_name)
+                item.tags += tag
 
         return {}, 200
 
@@ -67,20 +60,18 @@ class TodoItem(rest.Resource):
         :type todo_id: int
         """
 
-        with po.db_session:
-            todo = po.select(x for x in Todo if x.id == todo_id)[:][0]
+        try:
+            with orm.db_session:
+                todo = Todo[todo_id]
+                tags = list(todo.tags.name)
 
-            todo_tag_ids = [tag.id for tag in todo.tags]
+                return {
+                    "task": todo.data,
+                    "tags": tags
+                }
 
-            tags = [
-                tag.name for tag in
-                po.select(t for t in Tag if t.id in todo_tag_ids)
-            ]
-
-            return {
-                "Task": todo.data,
-                "Tags": tags
-            }
+        except orm.ObjectNotFound:
+            return {}, 404
 
 
 class Tags(rest.Resource):
@@ -88,10 +79,10 @@ class Tags(rest.Resource):
     def get(self):
         """Will show you all tags"""
 
-        with po.db_session:
+        with orm.db_session:
             return {
-                t.name: "http://localhost:5000/tags/{}".format(t.id)
-                for t in po.select(_ for _ in Tag)
+                tag.name: tag.get_url()
+                for tag in Tag.select()
             }
 
 
@@ -105,20 +96,18 @@ class TagItem(rest.Resource):
         :type tag_id: int
         """
 
-        with po.db_session:
-            tag = po.select(t for t in Tag if t.id == tag_id)[:][0]
+        try:
+            with orm.db_session:
+                tag = Tag[tag_id]
+                todos = list(tag.todos.data)
 
-            tag_todo_ids = [todo.id for todo in tag.todos]
+                return {
+                    "tag": tag.name,
+                    "tasks": todos
+                }
 
-            todos = [
-                todo.data for todo in
-                po.select(t for t in Todo if t.id in tag_todo_ids)
-            ]
-
-            return {
-                "Tag": tag.name,
-                "Todos": todos
-            }
+        except orm.ObjectNotFound:
+            return {}, 404
 
 # Paths ##########################################################################
 api.add_resource(Todos, '/', endpoint='Home')
@@ -128,5 +117,5 @@ api.add_resource(TagItem, '/tags/<int:tag_id>', endpoint='TagItem')
 
 
 if __name__ == '__main__':
-    po.sql_debug(True)
+    orm.sql_debug(True)
     app.run(debug=True)
