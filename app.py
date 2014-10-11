@@ -71,6 +71,24 @@ class TodoItem(rest.Resource):
         except orm.ObjectNotFound:
             return {}, 404
 
+    def delete(self, todo_id):
+
+        try:
+            with orm.db_session:
+                todo = Todo[todo_id]
+
+                if todo:
+                    tags = todo.tags.copy()
+                    todo.delete()
+
+                    for tag in tags:
+                        if not tag.todos:
+                            tag.delete()
+        except orm.ObjectNotFound:
+            return {}, 400
+
+        return {}, 200
+
 
 class Tags(rest.Resource):
     def get(self):
@@ -78,7 +96,7 @@ class Tags(rest.Resource):
 
         with orm.db_session:
             return {
-                tag.name: tag.get_url()
+                tag.name: tag.url
                 for tag in Tag.select()
             }
 
