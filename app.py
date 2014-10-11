@@ -7,7 +7,7 @@ import json
 from flask import Flask, request
 import flask.ext.restful as rest
 
-from Models import *
+from models import *
 
 # Boilerplate
 app = Flask(__name__)
@@ -130,5 +130,4 @@ api.add_resource(Tags, '/tags/', endpoint='Tags')
 api.add_resource(TagItem, '/tags/<int:tag_id>', endpoint='TagItem')
 
 if __name__ == '__main__':
-    orm.sql_debug(True)
     app.run(debug=True)
