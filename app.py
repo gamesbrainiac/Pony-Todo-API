@@ -7,7 +7,7 @@ import json
 from flask import Flask, request
 import flask.ext.restful as rest
 
-from models import *
+from Models import *
 
 # Boilerplate
 app = Flask(__name__)
@@ -20,15 +20,14 @@ db.generate_mapping(create_tables=True)
 
 # Resource #######################################################################
 class Todos(rest.Resource):
-
     def get(self):
         """Will give you all the todo items"""
 
         with orm.db_session:
             return {
                 item.id: {
-                    'task' : item.data,
-                    'tags' : [tag.get_url() for tag in item.tags]
+                    'task': item.data,
+                    'tags': [tag.url for tag in item.tags]
                 }
                 for item in Todo.select()
             }
@@ -40,7 +39,7 @@ class Todos(rest.Resource):
 
         with orm.db_session:
             item = Todo(data=info['data'])
-            
+
             for tag_name in info['tags']:
                 tag = Tag.get(name=tag_name)
                 if tag is None:
@@ -51,7 +50,6 @@ class Todos(rest.Resource):
 
 
 class TodoItem(rest.Resource):
-
     def get(self, todo_id):
         """
         Get specific information on a Todo item
@@ -63,7 +61,7 @@ class TodoItem(rest.Resource):
         try:
             with orm.db_session:
                 todo = Todo[todo_id]
-                tags = list(todo.tags.name)
+                tags = [{tag.name: tag.url} for tag in todo.tags]
 
                 return {
                     "task": todo.data,
@@ -75,7 +73,6 @@ class TodoItem(rest.Resource):
 
 
 class Tags(rest.Resource):
-
     def get(self):
         """Will show you all tags"""
 
@@ -87,7 +84,6 @@ class Tags(rest.Resource):
 
 
 class TagItem(rest.Resource):
-
     def get(self, tag_id):
         """
         Will show you information about a specific tag
@@ -114,7 +110,6 @@ api.add_resource(Todos, '/', endpoint='Home')
 api.add_resource(TodoItem, '/<int:todo_id>', endpoint='TodoItem')
 api.add_resource(Tags, '/tags/', endpoint='Tags')
 api.add_resource(TagItem, '/tags/<int:tag_id>', endpoint='TagItem')
-
 
 if __name__ == '__main__':
     orm.sql_debug(True)
