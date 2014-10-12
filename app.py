@@ -11,7 +11,6 @@ from TodoApp.Models import db
 from TodoApp.Resources.TagResources import Tags, TagItem
 from TodoApp.Resources.TodoResources import Todos, TodoItem
 
-
 # Boilerplate
 app = Flask(__name__)
 api = rest.Api(app)
