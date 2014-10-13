@@ -13,7 +13,7 @@ from . import db
 class User(db.Entity):
     name = orm.Required(str, 64)
 
-    usernname = orm.Required(str, 64)
+    username = orm.Required(str, 64)
     pass_hash = orm.Required(str, 128)
 
     todos = orm.Set("Todo")
