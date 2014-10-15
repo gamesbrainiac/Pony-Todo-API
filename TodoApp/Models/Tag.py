@@ -2,15 +2,9 @@
 __author__ = "Quazi Nafiul Islam"
 
 from pony import orm
+from werkzeug.utils import cached_property
 
-db = orm.Database()
-
-
-class Todo(db.Entity):
-    _table_ = 'Todos'
-
-    data = orm.Required(unicode)
-    tags = orm.Set("Tag")
+from TodoApp.Models import db
 
 
 class Tag(db.Entity):
@@ -19,6 +13,6 @@ class Tag(db.Entity):
     name = orm.Required(unicode, unique=True)
     todos = orm.Set("Todo")
 
-    @property
+    @cached_property
     def url(self):
         return "http://localhost:5000/tags/{}".format(self.id)
