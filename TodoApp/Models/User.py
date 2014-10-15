@@ -11,6 +11,23 @@ from . import db
 
 
 class User(db.Entity):
+    """
+    A user class that inherits from db.Entity, where db is an instance of
+    pony.orm.Database.
+
+    :param name: The name of the user e.g. John Doe
+    :type name: str
+
+    :param username: The username of the user, e.g. jdoe
+    :type username: str
+
+    :param pass_hash: The password hash, not directly put into an initializer,
+     use set_pass_hash instead.
+    :type pass_hash: str
+
+    :param Todos: A set of todos
+    :type todos: set
+    """
     name = orm.Required(str, 64)
 
     username = orm.Required(str, 64)
@@ -18,8 +35,9 @@ class User(db.Entity):
 
     todos = orm.Set("Todo")
 
-    def set_pass_hash(self, password):
-        self.pass_hash = sec.generate_password_hash(password)
+    @staticmethod
+    def set_pass_hash(password):
+        return sec.generate_password_hash(password)
 
     def verify_password(self, password):
         return sec.check_password_hash(self.pass_hash, password)
@@ -38,7 +56,6 @@ class User(db.Entity):
             current_app.config['SECRET_KEY'], salt='nobodyknows')
         try:
             data = s.loads(token)
+            return data
         except danger.BadData:
             return None
-        with orm.db_session:
-            return User[data['id']]

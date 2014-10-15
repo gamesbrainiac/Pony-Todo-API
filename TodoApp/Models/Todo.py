@@ -10,5 +10,6 @@ class Todo(db.Entity):
 
     _table_ = 'Todos'
 
+    user = orm.Required("User")
     data = orm.Required(unicode)
     tags = orm.Set("Tag")

@@ -1,9 +1,11 @@
 # encoding=utf-8
+from TodoApp.Models.User import User
+
 __author__ = "Quazi Nafiul Islam"
 
 import json
 
-from flask import request
+from flask import request, g
 
 from pony import orm
 import flask_restful as rest
@@ -16,30 +18,38 @@ class Todos(rest.Resource):
     def get(self):
         """Will give you all the todo items"""
 
-        with orm.db_session:
-            return {
-                item.id: {
-                    'task': item.data,
-                    'tags': [tag.url for tag in item.tags]
+        if g.user is not None:
+            with orm.db_session:
+                _ret = {
+                    item.id: {
+                        'task': item.data,
+                        'tags': [tag.url for tag in item.tags]
+                    }
+                    for item in User[g.user].todos
                 }
-                for item in Todo.select()
-            }
+                g.user = None
+                return _ret
+        else:
+            return {"error": "no todos"}
 
     def put(self):
         """Payload contains information to create new todo item"""
 
-        info = json.loads(request.data)
+        if g.user is not None:
+            info = json.loads(request.data)
 
-        with orm.db_session:
-            item = Todo(data=info['data'])
+            with orm.db_session:
+                item = Todo(data=info['data'], user=User[g.user])
 
-            for tag_name in info['tags']:
-                tag = Tag.get(name=tag_name)
-                if tag is None:
-                    tag = Tag(name=tag_name)
-                item.tags += tag
+                for tag_name in info['tags']:
+                    tag = Tag.get(name=tag_name)
+                    if tag is None:
+                        tag = Tag(name=tag_name)
+                    item.tags += tag
 
-        return {}, 200
+            return {}, 200
+        else:
+            return {'error': 'no user'}
 
 
 class TodoItem(rest.Resource):
@@ -54,7 +64,7 @@ class TodoItem(rest.Resource):
         try:
             with orm.db_session:
                 todo = Todo[todo_id]
-                tags = [{tag.name: tag.url} for tag in todo.tags]
+                tags = [{tag.name: tag.url} for tag in User[g.user].todo.tags]
 
                 return {
                     "task": todo.data,

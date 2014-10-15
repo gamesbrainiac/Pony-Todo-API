@@ -1,8 +1,12 @@
 # encoding=utf-8
+from TodoApp.Models.User import User
+
 __author__ = "Quazi Nafiul Islam"
 
 import flask_restful as rest
+from flask import g
 from pony import orm
+
 from TodoApp.Models.Tag import Tag
 
 
@@ -13,7 +17,7 @@ class Tags(rest.Resource):
         with orm.db_session:
             return {
                 tag.name: tag.url
-                for tag in Tag.select()
+                for tag in User[g.user].tags
             }
 
 
